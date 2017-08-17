@@ -6,6 +6,9 @@
   </head>
   <body>
     <h1>Go ahead and Kenny "Log in"</h1>
+    {{#errormessage}}
+      {{.}}
+    {{/errormessage}}
     <form class="" action="/login" method="post">
       <input type="text" name="username" value="">
       <input type="text" name="password" value="">

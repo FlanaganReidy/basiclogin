@@ -6,10 +6,16 @@ const bodyParser = require('body-parser')
 
 const app = express();
 
-let logins = {username:'kennyloggins', password: 'dangerzone'};
+let logins = [{
+  username: 'georgemessina',
+  password: 'angryeyes'
+}, {
+  username: 'kennyloggins',
+  password: 'dangerzone'
+}];
 
 app.use(session({
-  secret:'keyboard cat',
+  secret: 'keyboard cat',
   resave: false,
   saveUninitialized: true
 }))
@@ -17,27 +23,45 @@ app.use(session({
 app.engine('mustache', mustacheExpress());
 app.set('views', './views');
 app.set('view engine', 'mustache');
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({
+  extended: false
+}));
 
+app.use(function(req, res, next) {
 
-app.get('/', function(req,res){
-  res.render('login')
+  if (req.url === '/login') {
+    next();
+  } else if (!req.session.login) {
+    res.render('login');
+  } else {
+    next();
+  }
+
 })
-app.use(function(req, res, next){
+
+app.get('/', function(req, res) {
+  res.render('home')
+})
+
+app.post('/login', function(req, res) {
   let name = req.body.username;
   let pword = req.body.password;
-    if(name === logins.username && pword === logins.password){
-      next();
+  console.log(name);
+  console.log(pword);
+  for (var i = 0; i < logins.length; i++) {
+    if (name === logins[i].username && pword === logins[i].password) {
+      req.session.login = true;
     }
-    else{
-      res.render('login');
-    }
+  }
+  if(req.session.login === true){
+    res.render('home');
+  }
+  else{
+    res.render('login', {errormessage:"Not a member of Loggins and Messina"});
+  }
+
+
 })
-app.post('/login', function(req, res){
-  console.log(req.body.username);
-  console.log(req.body.password);
-  res.render('home');
-})
-app.listen(3000, function(){
+app.listen(3000, function() {
   console.log('Catcha raaaaaaiiiiiiiiide')
 })
